@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Spatie\WelcomeNotification\WelcomesNewUsers;
+use App\Http\Controllers\Auth\WelcomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,17 +16,22 @@ use Spatie\WelcomeNotification\WelcomesNewUsers;
 */
 
 Route::get('/', function () {
-    return view('auth.login');
+    if(!Auth::check()){
+        return view('auth.login');
+    }else{
+        return redirect()->route('home');
+    }
 });
 
-Auth::routes();
+Auth::routes(['register' => false]);
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-
-Route::get('/dropdowns', 'DropdownController@index');
-Route::get('/institutions', 'InstitutionController@index');
-Route::get('/staffs', 'StaffController@index');
+Route::middleware(['role:Administrator','auth'])->group(function () {
+    Route::get('/dropdowns', 'DropdownController@index');
+    Route::get('/institutions', 'InstitutionController@index');
+    Route::get('/staffs', 'StaffController@index');
+});
 
 Route::prefix('request')->group(function () {
     Route::prefix('admin')->group(function () {
