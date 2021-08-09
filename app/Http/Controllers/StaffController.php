@@ -67,6 +67,6 @@ class StaffController extends Controller
     }
 
     public function test(){
-        EmailNewAccount::dispatch(1)->delay(now()->addSeconds(10));
+        EmailNewAccount::dispatch(2)->delay(now()->addSeconds(10));
     }
 }
