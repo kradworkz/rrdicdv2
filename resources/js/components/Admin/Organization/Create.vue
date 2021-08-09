@@ -56,6 +56,7 @@
 <script>
     import myUpload from 'vue-image-crop-upload/upload-2.vue';
     export default {
+        props : ['org_id'],
         data(){
             return {
                 currentUrl: window.location.origin,
@@ -70,12 +71,13 @@
 
         methods : {
             create(){
-                axios.post(this.currentUrl + '/request/admin/institution/store', {
+                axios.post(this.currentUrl + '/request/admin/organization/store', {
                     id: this.institution.id,
                     name: this.institution.name,
                     acronym: this.institution.acronym,
                     avatar: this.photo.url,
-                    editable: this.editable
+                    editable: this.editable,
+                    type: this.org_id
                 })
                 .then(response => {
                     this.clear();

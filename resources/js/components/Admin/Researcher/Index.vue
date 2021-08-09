@@ -37,11 +37,12 @@
                         <thead>
                             <tr>
                                 <th></th>
-                                <th>Name / Email</th>
-                                <th class="text-center">Type</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Created Date</th>
-                                <th class="text-center">Action</th>
+                                <th class="font-size-12">Name / Email</th>
+                                <th class="font-size-12">Designation / Institution</th>
+                                <th class="text-center font-size-12">Specialty</th>
+                                <th class="text-center font-size-12">Status</th>
+                                <th class="text-center font-size-12">Created Date</th>
+                                <th class="text-right"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -56,9 +57,13 @@
                                 </td>
                                 <td>
                                     <h5 class="font-size-14 mb-1"><a href="#" class="text-dark">{{user.lastname}}, {{user.firstname}} {{user.middlename}}.</a></h5>
-                                    <p class="text-muted mb-0">{{user.email}}</p>
+                                    <p class="text-muted mb-0 font-size-10">{{user.email}}</p>
                                 </td>
-                                <td class="text-center">{{user.type}}</td>
+                                 <td>
+                                    <h5 class="font-size-14 mb-1"><a href="#" class="text-dark">{{user.designation.name}}.</a></h5>
+                                    <p class="text-muted mb-0 font-size-10">{{user.institution.name}}</p>
+                                </td>
+                                <td class="text-center">{{user.specialty.name}}</td>
                                 <td class="text-center">
                                     <span v-if="user.status == 'Active'" class="badge badge-success font-size-12">Active</span>
                                     <span v-else-if="user.status == 'Inactive'" class="badge badge-secondary font-size-12">Inactive</span>
@@ -66,10 +71,10 @@
                                     <span v-else class="badge badge-danger font-size-12">Retired</span>
                                 </td>
                                 <td class="text-center">{{user.created_at}}</td>
-                                <td class="text-center">
-                                    <a class="mr-3 text-info" data-toggle="tooltip" data-placement="top" title="" data-original-title="View"><i class='bx bx-show'></i></a>
+                                <td class="text-right">
+                                    <a class="mr-3 text-info" @click="view(user)" data-toggle="tooltip" data-placement="top" title="" data-original-title="View"><i class='bx bx-show'></i></a>
                                     <a class="mr-3 text-warning" @click="edit(user)" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"><i class='bx bx-edit-alt' ></i></a>
-                                    <a class="text-danger" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><i class='bx bx-trash'></i></a>
+                                    <a class="text-danger"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><i class='bx bx-trash'></i></a>
                                 </td>
                             </tr>
                         </tbody>
@@ -81,7 +86,10 @@
     </div>
 
     <div class="modal fade exampleModal" id="new" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <staff-create @status="message" ref="create"></staff-create>
+        <researcher-create @status="message" ref="create"></researcher-create>
+    </div>
+    <div class="modal fade exampleModal" id="view" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <researcher-view @status="message" :user="user" ref="create"></researcher-view>
     </div>
   
 </div>
@@ -96,6 +104,11 @@ export default {
             pagination: {},
             keyword: '',
             users : [],
+            user : {
+                designation: {},
+                institution: {},
+                specialty: {}
+            }
         }
     },
 
@@ -117,7 +130,7 @@ export default {
         fetch(page_url) {
             let vm = this; let key;
             (this.keyword != '' && this.keyword != null) ? key = this.keyword : key = '-';
-            page_url = page_url || this.currentUrl + '/request/admin/staffs/'+key;
+            page_url = page_url || this.currentUrl + '/request/admin/researchers/'+key;
 
             axios.get(page_url)
             .then(response => {
@@ -132,6 +145,11 @@ export default {
             this.$refs.create.clear();
         },
 
+        view(user){
+            this.user = user;
+            $("#view").modal('show');
+        },
+
         edit(user){
             this.editable = true;
             $("#new").modal('show');
@@ -141,7 +159,7 @@ export default {
         message(val){
             if(val){
                 if(this.editable == true){
-                    let page_url = '/request/admin/staffs/-?page=' + this.pagination.current_page;
+                    let page_url = '/request/admin/researchers/-?page=' + this.pagination.current_page;
                     this.fetch(page_url);
                 }else{
                     this.fetch();

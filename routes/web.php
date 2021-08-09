@@ -27,11 +27,25 @@ Auth::routes(['register' => false]);
 
 Route::get('/home', 'HomeController@index')->name('home');
 
+Route::get('/test-queue', 'StaffController@test');
+
 Route::middleware(['role:Administrator','auth'])->group(function () {
     Route::get('/dropdowns', 'DropdownController@index');
-    Route::get('/institutions', 'InstitutionController@index');
+    Route::get('/institutions', 'InstitutionController@institutions');
+    Route::get('/agencies', 'InstitutionController@agencies');
     Route::get('/staffs', 'StaffController@index');
+    Route::get('/researchers', 'ResearcherController@index');
 });
+
+Route::middleware(['role:Researcher,Secretariat','auth'])->group(function () {
+    Route::get('/researches', 'ResearchController@index');
+    Route::get('/research/view/{id}', 'ResearchController@view');
+});
+
+Route::middleware(['role:Researcher','auth'])->group(function () {
+    Route::get('/research/add', 'ResearchController@add');
+});
+
 
 Route::prefix('request')->group(function () {
     Route::prefix('admin')->group(function () {
@@ -39,12 +53,20 @@ Route::prefix('request')->group(function () {
         Route::get('/dropdown/{classification}/{type}/{keyword}', 'DropdownController@list');
         Route::post('/dropdown/store', 'DropdownController@store');
 
-        Route::get('/institutions/{keyword}', 'InstitutionController@list');
-        Route::get('/institution/list', 'InstitutionController@lists');
-        Route::post('/institution/store', 'InstitutionController@store');
+        Route::get('/organizations/{type}/{keyword}', 'InstitutionController@list');
+        Route::get('/organization/list/{type}', 'InstitutionController@lists');
+        Route::post('/organization/store', 'InstitutionController@store');
 
         Route::get('/staffs/{keyword}', 'StaffController@lists');
         Route::post('/staff/store', 'StaffController@store');
+
+        Route::get('/researchers/{keyword}', 'ResearcherController@lists');
+        Route::post('/researcher/store', 'ResearcherController@store');
+    });
+    Route::prefix('researcher')->group(function () {
+        Route::get('/researches/{keyword}', 'ResearchController@lists');
+        Route::get('/research/{id}', 'ResearchController@research');
+        Route::post('/research/store', 'ResearchController@store');
     });
 });
 

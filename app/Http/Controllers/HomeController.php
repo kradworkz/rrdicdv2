@@ -24,14 +24,16 @@ class HomeController extends Controller
      */
     public function index()
     {
-        if(Auth::user()->status == "Inactive"){
-            return view('user_admin.index');
-        }else if(Auth::user()->type == "Customer Relations Officer"){
-            return view('user_cro.index');    
-        }else if(Auth::user()->type == "Cashier"){
-            return view('user_finance.index');
-        }else if(Auth::user()->type == "Lab Analyst"){
-            return view('user_analyst.index');
+        // if(Auth::user()->status == "Inactive"){
+        //     return view('user_admin.index');
+        // }else 
+        
+        if(Auth::user()->type == "Receiver"){
+            return view('user_receiver.index');    
+        }else if(Auth::user()->type == "Secretariat"){
+            return view('user_approver.index');
+        }else if(Auth::user()->type == "Researcher"){
+            return view('user_researcher.index');
         }else{
             return view('user_admin.index');
         }

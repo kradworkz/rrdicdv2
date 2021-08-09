@@ -16,7 +16,7 @@
     <!-- <link type="text/css" rel="stylesheet" href="{{asset('fonts/boxicons-2.0.7/css/boxicons.css')}}" /> -->
 </head>
 
-    <body data-sidebar="dark" data-keep-enlarged="true" class="vertical-collpsed" style="overflow: hidden;">
+    <body data-sidebar="dark" data-keep-enlarged="true" class="vertical-collpsed">
         <div id="app"> 
             <div id="layout-wrapper">
                 @include('layouts.header')

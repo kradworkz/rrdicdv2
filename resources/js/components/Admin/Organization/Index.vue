@@ -5,15 +5,15 @@
             <div class="card-body">
                 <div class="row mb-3">
                     <div class="col-xl-6 col-sm-6 form-inline">
-                         <button type="button" @click="addnew" class="btn btn-danger waves-effect waves-light mr-2"><i class='bx bx-plus-medical'></i></button>
-                        <form class="float-sm-right form-inline">
+                        <button type="button" @click="addnew" class="btn btn-danger waves-effect waves-light mr-2"><i class='bx bx-plus-medical'></i></button>
+                        <form class="form-inline">
                             <div class="search-box">
                                 <div class="position-relative">
                                     <input type="text" class="form-control bg-light border-light rounded" placeholder="Search..." v-model="keyword" @keyup="fetch()">
-                                   <i class='bx bx-search-alt search-icon'></i>
+                                    <i class='bx bx-search-alt search-icon'></i>
                                 </div>
                             </div>
-                        </form>
+                        </form>  
                     </div>
                     <div class="col-xl-6 col-sm-6">
                         <ul class="list-inline user-chat-nav text-right mb-0 dropdown">
@@ -37,38 +37,30 @@
                         <thead>
                             <tr>
                                 <th></th>
-                                <th>Name / Email</th>
-                                <th class="text-center">Type</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Created Date</th>
+                                <th>Name</th>
+                                <th>Acronym</th>
+                                <th>Created Date</th>
+                                <th>Updated Date</th>
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="user in users" v-bind:key="user.id">
+                            <tr v-for="institution in institutions" v-bind:key="institution.id">
                                 <td>
-                                    <div class="avatar-xs" v-if="user.avatar == 'n/a'">
-                                        <span class="avatar-title rounded-circle">{{user.lastname.charAt(0)}}</span>
+                                    <div class="avatar-xs" v-if="institution.avatar == 'n/a'">
+                                        <span class="avatar-title rounded-circle">{{institution.name.charAt(0)}}</span>
                                     </div>
                                     <div v-else>
-                                        <img class="rounded-circle avatar-xs" :src="currentUrl+'/images/avatars/'+user.avatar" alt="">
+                                        <img class="rounded-circle avatar-xs" :src="currentUrl+'/images/avatars/'+institution.avatar" alt="">
                                     </div>
                                 </td>
-                                <td>
-                                    <h5 class="font-size-14 mb-1"><a href="#" class="text-dark">{{user.lastname}}, {{user.firstname}} {{user.middlename}}.</a></h5>
-                                    <p class="text-muted mb-0">{{user.email}}</p>
-                                </td>
-                                <td class="text-center">{{user.type}}</td>
-                                <td class="text-center">
-                                    <span v-if="user.status == 'Active'" class="badge badge-success font-size-12">Active</span>
-                                    <span v-else-if="user.status == 'Inactive'" class="badge badge-secondary font-size-12">Inactive</span>
-                                    <span v-else-if="user.status == 'Disabled'" class="badge badge-warning font-size-12">Disabled</span>
-                                    <span v-else class="badge badge-danger font-size-12">Retired</span>
-                                </td>
-                                <td class="text-center">{{user.created_at}}</td>
+                                <td>{{institution.name}}</td>
+                                <td>{{institution.acronym}}</td>
+                                <td>{{institution.created_at}}</td>
+                                <td>{{institution.updated_at}}</td>
                                 <td class="text-center">
                                     <a class="mr-3 text-info" data-toggle="tooltip" data-placement="top" title="" data-original-title="View"><i class='bx bx-show'></i></a>
-                                    <a class="mr-3 text-warning" @click="edit(user)" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"><i class='bx bx-edit-alt' ></i></a>
+                                    <a class="mr-3 text-warning" @click="edit(institution)" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"><i class='bx bx-edit-alt' ></i></a>
                                     <a class="text-danger" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><i class='bx bx-trash'></i></a>
                                 </td>
                             </tr>
@@ -79,23 +71,23 @@
             </div>
         </div>
     </div>
-
+    
     <div class="modal fade exampleModal" id="new" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <staff-create @status="message" ref="create"></staff-create>
+        <organization-create :org_id="org_id" @status="message" ref="create"></organization-create>
     </div>
-  
 </div>
 </template>
 
 <script>
 export default {
+    props : ['org_id'],
     data(){
         return {
             currentUrl: window.location.origin,
             errors: [],
             pagination: {},
             keyword: '',
-            users : [],
+            institutions : [],
         }
     },
 
@@ -109,7 +101,8 @@ export default {
                 current_page: meta.current_page,
                 last_page: meta.last_page,
                 next_page_url: links.next,
-                prev_page_url: links.prev
+                prev_page_url: links.prev,
+                total: meta.total,
             };
             this.pagination = pagination;
         },
@@ -117,11 +110,11 @@ export default {
         fetch(page_url) {
             let vm = this; let key;
             (this.keyword != '' && this.keyword != null) ? key = this.keyword : key = '-';
-            page_url = page_url || this.currentUrl + '/request/admin/staffs/'+key;
+            page_url = page_url || this.currentUrl + '/request/admin/organizations/'+this.org_id+'/'+key;
 
             axios.get(page_url)
             .then(response => {
-                this.users = response.data.data;
+                this.institutions = response.data.data;
                 vm.makePagination(response.data.meta, response.data.links);
             })
             .catch(err => console.log(err));
@@ -129,27 +122,27 @@ export default {
 
         addnew(){
             $("#new").modal('show');
-            this.$refs.create.clear();
         },
 
-        edit(user){
+        edit(agency){
             this.editable = true;
             $("#new").modal('show');
-            this.$refs.create.edit(user,true);
+            this.$refs.create.edit(agency,true);
         },
 
         message(val){
             if(val){
                 if(this.editable == true){
-                    let page_url = '/request/admin/staffs/-?page=' + this.pagination.current_page;
+                    let page_url = '/request/admin/organizations/'+this.org_id+'/-?page=' + this.pagination.current_page;
                     this.fetch(page_url);
                 }else{
                     this.fetch();
                 }
-                $("#new").modal('hide');
+                $("#newloc").modal('hide');
                 this.editable = false;
             }
         }
+
     }, 
 }
 </script>

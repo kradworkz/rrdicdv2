@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Services\StoreImage;
 use App\Http\Resources\StaffResource;
 use App\Http\Requests\StaffRequest;
+use App\Jobs\EmailNewAccount;
 
 class StaffController extends Controller
 {
@@ -41,6 +42,9 @@ class StaffController extends Controller
                     $profile->firstname = ucwords(strtolower($request->input('firstname')));
                     $profile->lastname = ucwords(strtolower($request->input('lastname')));
                     $profile->middlename = ucwords(strtolower($request->input('middlename')));
+                    $profile->birthdate = $request->input('birthdate');
+                    $profile->mobile_no = $request->input('mobile');
+                    $profile->gender = $request->input('gender');
                     $profile->user_id = $data->id;
                     $profile->save();
                     
@@ -53,12 +57,16 @@ class StaffController extends Controller
                     $profile->avatar = $imageName;
                     $profile->save();
                 
-                    // EmailNewAccount::dispatch($data->id)->delay(now()->addSeconds(10));
-                    $expiresAt = now()->addDay();
-                    $data->sendWelcomeNotification($expiresAt);
+                    EmailNewAccount::dispatch($data->id)->delay(now()->addSeconds(10));
+                    // $expiresAt = now()->addDay();
+                    // $data->sendWelcomeNotification($expiresAt);
                 }
 
             }
         });
+    }
+
+    public function test(){
+        EmailNewAccount::dispatch(1)->delay(now()->addSeconds(10));
     }
 }

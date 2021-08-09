@@ -28,6 +28,9 @@ class DatabaseSeeder extends Seeder
             'lastname' => 'Jumli',
             'middlename' => 'Indanan',
             'avatar' => 'avatar.jpg',
+            'mobile_no' => '00000000000',
+            'birthdate' => '2021-06-22',
+            'gender' => 'Male',
             'user_id' => 1,
             'created_at' => now(),
             'updated_at' => now()
@@ -42,6 +45,6 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(DropdownsTableSeeder::class);
-        $this->call(InstitutionsTableSeeder::class);
+        $this->call(OrganizationsTableSeeder::class);
     }
 }

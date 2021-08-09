@@ -5,10 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserProfile extends Model
+class Research extends Model
 {
     use HasFactory;
-    protected $guarded = [];
+    protected $table = 'researches';
+
+    public function status()
+    {
+        return $this->belongsTo('App\Models\Dropdown', 'status_id', 'id');
+    }
+
+    public function iprstatus()
+    {
+        return $this->belongsTo('App\Models\Dropdown', 'iprstatus_id', 'id');
+    }
+
+    public function classification()
+    {
+        return $this->belongsTo('App\Models\Dropdown', 'classification_id', 'id');
+    }
 
     public function user()
     {
@@ -23,10 +38,5 @@ class UserProfile extends Model
     public function getCreatedAtAttribute($value)
     {
         return date('M d, Y g:i a', strtotime($value));
-    }
-
-    public function getBirthdateAttribute($value)
-    {
-        return date('M d, Y', strtotime($value));
     }
 }

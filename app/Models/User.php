@@ -53,6 +53,16 @@ class User extends Authenticatable
         return $this->hasOne('App\Models\UserProfile', 'user_id');
     } 
 
+    public function researcher()
+    {
+        return $this->hasOne('App\Models\Researcher', 'user_id');
+    } 
+
+    public function research()
+    {
+        return $this->hasMany('App\Models\Research', 'user_id');
+    } 
+
     public function sendWelcomeNotification(\Carbon\Carbon $validUntil)
     {
         $this->notify(new WelcomeNotification($validUntil));
@@ -67,4 +77,15 @@ class User extends Authenticatable
     {
         return date('M d, Y g:i a', strtotime($value));
     }
+
+    public function hasRole($roles)
+    {
+        foreach ($roles as $role) {
+            if ($this->type == $role) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

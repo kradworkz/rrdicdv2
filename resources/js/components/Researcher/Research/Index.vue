@@ -2,10 +2,11 @@
 <div class="d-xl-flex">                
     <div class="w-100">
         <div class="card">
-            <div class="card-body">
+            
+            <div class="card-body" v-if="view == false">
                 <div class="row mb-3">
                     <div class="col-xl-6 col-sm-6 form-inline">
-                        <button type="button" @click="addnew" class="btn btn-danger waves-effect waves-light mr-2">New <i class='bx bx-plus-medical ml-2'></i></button>
+                    <button type="button" @click="addnew" class="btn btn-danger waves-effect waves-light mr-2"><i class='bx bx-plus-medical'></i></button>
                         <form class="form-inline">
                             <div class="search-box">
                                 <div class="position-relative">
@@ -36,57 +37,59 @@
                     <table class="table table-centered table-nowrap">
                         <thead>
                             <tr>
+                                <th class="text-center">Title</th>  
+                                <th class="text-center">Classification</th>
+                                <th class="text-center">IPR Status</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Created Date</th>
                                 <th></th>
-                                <th>Name</th>
-                                <th>Acronym</th>
-                                <th>Created Date</th>
-                                <th>Updated Date</th>
-                                <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="institution in institutions" v-bind:key="institution.id">
-                                <td>
-                                    <div class="avatar-xs" v-if="institution.avatar == 'n/a'">
-                                        <span class="avatar-title rounded-circle">{{institution.name.charAt(0)}}</span>
-                                    </div>
-                                    <div v-else>
-                                        <img class="rounded-circle avatar-xs" :src="currentUrl+'/images/avatars/'+institution.avatar" alt="">
-                                    </div>
-                                </td>
-                                <td>{{institution.name}}</td>
-                                <td>{{institution.acronym}}</td>
-                                <td>{{institution.created_at}}</td>
-                                <td>{{institution.updated_at}}</td>
+                            <tr v-for="research in researches" v-bind:key="research.id">
+                                <td class="text-center">{{research.title}}</td>
+                                <td class="text-center">{{research.classification}}</td>
+                                <td class="text-center">{{research.iprstatus}}</td>
                                 <td class="text-center">
-                                    <a class="mr-3 text-info" data-toggle="tooltip" data-placement="top" title="" data-original-title="View"><i class='bx bx-show'></i></a>
-                                    <a class="mr-3 text-warning" @click="edit(institution)" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"><i class='bx bx-edit-alt' ></i></a>
+                                    <span :class="'font-size-11 badge badge-'+research.color">{{research.status}}</span>
+                                </td>
+                                <td class="text-center">{{research.created_at}}</td>
+                                <td class="text-right">
+                                    <a @click="show(research)" class="mr-3 text-info" data-toggle="tooltip" data-placement="top" title="" data-original-title="View"><i class='bx bx-show'></i></a>
+                                    <!--<a class="mr-3 text-warning" @click="edit(institution)" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"><i class='bx bx-edit-alt' ></i></a>-->
                                     <a class="text-danger" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><i class='bx bx-trash'></i></a>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-
             </div>
+            <div class="card-body" v-else-if="create == true">
+                <research-add :edit="edit" :editresearch="research" @status="message"></research-add>
+            </div>
+            <div class="card-body" v-else>
+                <research-view :research="research" @status="message"></research-view>
+            </div>
+
         </div>
-    </div>
-    
-    <div class="modal fade exampleModal" id="new" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <institution-create @status="message" ref="create"></institution-create>
-    </div>
+    </div>   
 </div>
 </template>
 
 <script>
 export default {
+    props : ['usertype'],
     data(){
         return {
             currentUrl: window.location.origin,
             errors: [],
             pagination: {},
             keyword: '',
-            institutions : [],
+            researches : [],
+            research: {},
+            view: false,
+            create: false,
+            edit: false
         }
     },
 
@@ -109,39 +112,39 @@ export default {
         fetch(page_url) {
             let vm = this; let key;
             (this.keyword != '' && this.keyword != null) ? key = this.keyword : key = '-';
-            page_url = page_url || this.currentUrl + '/request/admin/institutions/'+key;
+            page_url = page_url || this.currentUrl + '/request/researcher/researches/'+key;
 
             axios.get(page_url)
             .then(response => {
-                this.institutions = response.data.data;
+                this.researches = response.data.data;
                 vm.makePagination(response.data.meta, response.data.links);
             })
             .catch(err => console.log(err));
         },
 
-        addnew(){
-            $("#new").modal('show');
+        show(research){
+            this.research = research;
+            this.view = true;
         },
 
-        edit(agency){
-            this.editable = true;
-            $("#new").modal('show');
-            this.$refs.create.edit(agency,true);
-        },
-
-        message(val){
-            if(val){
-                if(this.editable == true){
-                    let page_url = '/request/admin/institutions/-?page=' + this.pagination.current_page;
-                    this.fetch(page_url);
-                }else{
-                    this.fetch();
-                }
-                $("#newloc").modal('hide');
-                this.editable = false;
+        message(status) {
+            if(status == true){
+                this.view = false 
+                this.create = false;
+                this.fetch();
+            }else if(status == 'edit'){
+                this.create = true;
+                this.edit = true;
+            }else{
+                this.view = true;
             }
-        }
+        },
 
+        addnew(){
+            this.view = true;
+            this.create = true;
+            this.edit = false;
+        }
     }, 
 }
 </script>

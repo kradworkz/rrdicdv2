@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInstitutionsTable extends Migration
+class CreateCommentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,14 @@ class CreateInstitutionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('institutions', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->smallIncrements('id');
-            $table->string('name',200);
-            $table->string('acronym',20)->defualt('n/a');
-            $table->string('address',200)->default('n/a');  
-            $table->string('avatar',200)->default('school.jpg');
-            $table->timestamps();  
+            $table->longText('comment');
+            $table->string('path');
+            $table->smallInteger('research_id')->unsigned()->index();
+            $table->foreign('research_id')->references('id')->on('researches')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
@@ -31,6 +31,6 @@ class CreateInstitutionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('institutions');
+        Schema::dropIfExists('comments');
     }
 }

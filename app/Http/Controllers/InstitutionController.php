@@ -2,21 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Institution;
+use App\Models\Organization;
 use Illuminate\Http\Request;
 use App\Services\StoreImage;
 use App\Http\Resources\DefaultResource;
 
 class InstitutionController extends Controller
 {
-    public function index(){
+    public function institutions(){
         return view('user_admin.institution');
     }
 
+    public function agencies(){
+        return view('user_admin.agency');
+    }
+
     public function store(StoreImage $strmg, Request $request)
-    {
-        $data = ($request->input('editable')) ? Institution::findOrFail($request->input('id')) : new Institution;
+    {   
+        $type = $request->input('type');
+        $data = ($request->input('editable')) ? Organization::findOrFail($request->input('id')) : new Organization;
         $data->name  = ucwords(strtolower($request->input('name')));
+        $data->type_id  = $type;
         $data->acronym =($request->acronym == '') ? 'n/a' : strtoupper($request->input('acronym'));
         if($data->save()){
             $name = strtolower($request->input('acronym')).'-'.$data->id;
@@ -31,16 +37,16 @@ class InstitutionController extends Controller
         return new DefaultResource($data);
     }
 
-    public function list($keyword)
+    public function list($type,$keyword)
     {
         ($keyword == '-') ? $keyword = '' : $keyword;
-        $data = Institution::where('name','LIKE','%'.$keyword.'%')->orderBy('created_at','DESC')->paginate(10);
+        $data = Organization::where('type_id',$type)->where('name','LIKE','%'.$keyword.'%')->orderBy('created_at','DESC')->paginate(10);
         return DefaultResource::collection($data);
     }
 
-    public function lists()
+    public function lists($type)
     {
-        $data =  Institution::get();
+        $data =  Organization::where('type_id',$type)->get();
         return DefaultResource::collection($data);
     }
 }

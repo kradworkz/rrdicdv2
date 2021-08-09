@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0 font-size-18">Institutions</h4>
+                    <h4 class="mb-0 font-size-18">Agencies</h4>
 
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
@@ -17,6 +17,6 @@
             </div>
         </div>
 
-        <organizations :org_id="3"></organizations>
+        <organizations :org_id="2"></organizations>
        
 @endsection
